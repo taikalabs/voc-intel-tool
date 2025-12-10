@@ -5,7 +5,7 @@ import WebSignals from './components/WebSignals';
 import Dashboard from './components/Dashboard';
 import BriefGenerator from './components/BriefGenerator';
 import { getFeedbackItems, getWebSignals, getBriefs } from './utils/storage';
-import { loadDemoData, clearAllData } from './utils/demoData';
+import { loadDemoData, clearAllData, shouldAutoLoadDemo } from './utils/demoData';
 
 function App() {
   const [feedbackItems, setFeedbackItems] = useState([]);
@@ -14,6 +14,10 @@ function App() {
   const [activeTab, setActiveTab] = useState('input');
 
   useEffect(() => {
+    // Auto-load demo data on first visit
+    if (shouldAutoLoadDemo()) {
+      loadDemoData();
+    }
     // Load existing data on mount
     setFeedbackItems(getFeedbackItems());
     setWebSignals(getWebSignals());
