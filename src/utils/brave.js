@@ -1,5 +1,9 @@
-// Using Vite proxy to avoid CORS - API key is set in vite.config.js
-const BRAVE_SEARCH_URL = '/api/brave/res/v1/web/search';
+// In development: use Vite proxy (API key in vite.config.js)
+// In production: use Vercel serverless function (API key in env var)
+const isDev = import.meta.env.DEV;
+const BRAVE_SEARCH_URL = isDev
+  ? '/api/brave/res/v1/web/search'
+  : '/api/brave-search';
 
 // Predefined search queries for Mistral
 export const SEARCH_QUERIES = [
@@ -17,13 +21,19 @@ export const SEARCH_QUERIES = [
 
 export async function searchBrave(query, count = 10) {
   try {
-    const params = new URLSearchParams({
-      q: query,
-      count: count.toString(),
-      freshness: 'pm', // Past month
-      text_decorations: 'false',
-      search_lang: 'en'
-    });
+    // Build params based on environment
+    const params = isDev
+      ? new URLSearchParams({
+          q: query,
+          count: count.toString(),
+          freshness: 'pm',
+          text_decorations: 'false',
+          search_lang: 'en'
+        })
+      : new URLSearchParams({
+          q: query,
+          count: count.toString()
+        });
 
     const response = await fetch(`${BRAVE_SEARCH_URL}?${params}`, {
       method: 'GET',
